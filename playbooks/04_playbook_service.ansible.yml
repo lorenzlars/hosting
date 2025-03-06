@@ -1,0 +1,21 @@
+---
+- name: Manage Docker containers
+  hosts: hosts
+  become: true
+  tasks:
+    - name: Ensure Docker is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Copy docker-compose.yml to the remote host
+      ansible.builtin.copy:
+        src: ../assets/compose.yml
+        dest: /root/compose.yml
+        mode: '0755'
+
+    - name: Start Docker Compose services
+      community.docker.docker_compose:
+        project_src: /root
+        state: present

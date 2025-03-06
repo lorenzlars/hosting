@@ -1,0 +1,24 @@
+---
+- name: Install Docker on Ubuntu using official Docker repositories
+  hosts: hosts
+  become: true
+  tasks:
+    - name: Update apt package index
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Create directory for unpacked files
+      ansible.builtin.file:
+        path: /root/unpacked
+        state: directory
+        mode: '0755'
+
+    - name: Unpack the ZIP file
+      ansible.builtin.unarchive:
+        src: ../assets/synology_backup_agent.zip
+        dest: /root/unpacked
+
+    - name: Install
+      ansible.builtin.command:
+        cmd: /root/unpacked/install.run
+        creates: /root/unpacked/installed.flag

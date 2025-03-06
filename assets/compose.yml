@@ -1,0 +1,57 @@
+volumes:
+  letsencrypt:
+
+
+services:
+  traefik:
+    image: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      #   - /DATA/AppData/traefik:/etc/traefik:ro
+      - letsencrypt:/letsencrypt
+    restart: unless-stopped
+    # extra_hosts:
+    #   - "host.docker.internal:172.23.0.1"
+    # environment:
+    #   - "CLOUDFLARE_DNS_API_TOKEN"
+
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    # volumes:
+    #   - /DATA/AppData/mosquitto/config:/mosquitto/config
+    #   - /DATA/AppData/mosquitto/data:/mosquitto/data
+    #   - /DATA/AppData/mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt
+    depends_on:
+      - mosquitto
+    environment:
+      - MQTT_SERVER=mosquitto
+    # volumes:
+    #   - /DATA/AppData/zigbee2mqtt:/app/data
+    # devices:
+    #   - /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/dev/ttyUSB0
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zigbee2mqtt.rule=Host(`zigbee2mqtt-app.larslorenz.me`)"
+      - "traefik.http.routers.zigbee2mqtt.entrypoints=web"
+      - "traefik.http.routers.zigbee2mqtt-tls.rule=Host(`zigbee2mqtt-app.larslorenz.me`)"
+      - "traefik.http.routers.zigbee2mqtt-tls.entrypoints=websecure"
+      - "traefik.http.routers.zigbee2mqtt-tls.tls=true"
+      - "traefik.http.routers.zigbee2mqtt-tls.tls.certresolver=cert-resolver"
+      - "traefik.http.routers.zigbee2mqtt-tls.tls.domains[0].main=larslorenz.me"
+      - "traefik.http.routers.zigbee2mqtt-tls.tls.domains[0].sans=*.larslorenz.me"
+      - "traefik.http.services.zigbee2mqtt.loadbalancer.server.port=8080"
+      - "traefik.http.routers.zigbee2mqtt.middlewares=zigbee2mqtt-basicauth@docker"
+      - "traefik.http.routers.zigbee2mqtt-tls.middlewares=zigbee2mqtt-basicauth@docker"
+      - "traefik.http.middlewares.zigbee2mqtt-basicauth.basicauth.users=lars:$$2y$$05$$NCserrxUQtk0kZOjrhcO9.J.oOaK1eACa4eB6ALC6XO3VaG28XNiG"
+    restart: unless-stopped
