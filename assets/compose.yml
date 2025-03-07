@@ -10,13 +10,11 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      #   - /DATA/AppData/traefik:/etc/traefik:ro
+      - /DATA/traefik:/etc/traefik:ro
       - letsencrypt:/letsencrypt
     restart: unless-stopped
-    # extra_hosts:
-    #   - "host.docker.internal:172.23.0.1"
-    # environment:
-    #   - "CLOUDFLARE_DNS_API_TOKEN"
+    environment:
+      - "CLOUDFLARE_DNS_API_TOKEN"
 
   mosquitto:
     image: eclipse-mosquitto
@@ -24,10 +22,10 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
-    # volumes:
-    #   - /DATA/AppData/mosquitto/config:/mosquitto/config
-    #   - /DATA/AppData/mosquitto/data:/mosquitto/data
-    #   - /DATA/AppData/mosquitto/log:/mosquitto/log
+    volumes:
+      - /DATA/mosquitto/config:/mosquitto/config
+      - /DATA/mosquitto/data:/mosquitto/data
+      - /DATA/mosquitto/log:/mosquitto/log
     restart: unless-stopped
 
   zigbee2mqtt:
@@ -36,8 +34,9 @@ services:
       - mosquitto
     environment:
       - MQTT_SERVER=mosquitto
-    # volumes:
-    #   - /DATA/AppData/zigbee2mqtt:/app/data
+    volumes:
+      - /DATA/zigbee2mqtt:/app/data
+      - letsencrypt:/letsencrypt
     # devices:
     #   - /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/dev/ttyUSB0
     labels:

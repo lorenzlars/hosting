@@ -1,0 +1,34 @@
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          permanent: true
+          to: "websecure"
+  websecure:
+    address: ":443"
+
+log:
+  level: WARN
+
+api:
+  insecure: true
+  dashboard: true
+
+certificatesResolvers:
+  cert-resolver:
+    acme:
+      storage: "/letsencrypt/acme.json"
+      email: "mail@larslorenz.me"
+      dnsChallenge:
+        provider: "cloudflare"
+        delayBeforeCheck: 30s
+        disablePropagationCheck: true
+        resolvers:
+          - "1.1.1.1:53"

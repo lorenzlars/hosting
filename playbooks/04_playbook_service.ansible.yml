@@ -9,11 +9,26 @@
         state: started
         enabled: true
 
+    - name: Create directory for docker data
+      ansible.builtin.file:
+        path: /DATA
+        state: directory
+        mode: '0755'
+
+    - name: Copy traefik.yml to the remote host
+      ansible.builtin.copy:
+        src: ../assets/traefik.yml
+        dest: /DATA/traefik/traefik.yml
+        mode: '0755'
+
     - name: Copy docker-compose.yml to the remote host
       ansible.builtin.copy:
         src: ../assets/compose.yml
         dest: /root/compose.yml
         mode: '0755'
+
+    - name: Run a command with inline environment variables
+      ansible.builtin.shell: export CLOUDFLARE_DNS_API_TOKEN="{{ lookup('env', 'CLOUDFLARE_DNS_API_TOKEN') }}"
 
     - name: Start Docker Compose services
       community.docker.docker_compose_v2:
