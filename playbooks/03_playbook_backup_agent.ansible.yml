@@ -1,11 +1,17 @@
 ---
-- name: Install Docker on Ubuntu using official Docker repositories
+- name: Install Synology Backup for Business Agent
   hosts: hosts
   become: true
   tasks:
     - name: Update apt package index
       ansible.builtin.apt:
         update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install unzip
+      ansible.builtin.apt:
+        name: unzip
+        state: present
 
     - name: Create directory for unpacked files
       ansible.builtin.file:
@@ -21,4 +27,9 @@
     - name: Install
       ansible.builtin.command:
         cmd: /root/unpacked/install.run
-        creates: /root/unpacked/installed.flag
+        creates: /usr/bin/abb-cli
+
+    - name: Run abb-cli command
+      ansible.builtin.command:
+        cmd: abb-cli --address '{{ lookup('env', 'NAS_IP') }}' --username '{{ lookup('env', 'NAS_USER') }}' --password '{{ lookup('env', 'NAS_PASSWORD') }}' --connect --quiet
+        creates: /opt/Synology/ActiveBackupforBusiness/data/log/log.txt
