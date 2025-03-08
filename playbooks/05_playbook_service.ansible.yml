@@ -2,6 +2,9 @@
 - name: Manage Docker containers
   hosts: hosts
   become: true
+  handlers:
+    - name: Restart docker containers
+      ansible.builtin.shell: CLOUDFLARE_DNS_API_TOKEN="{{ lookup('env', 'CLOUDFLARE_DNS_API_TOKEN') }}" docker compose -f /root/compose.yml up -d
   tasks:
     - name: Ensure Docker is running
       ansible.builtin.service:
@@ -20,17 +23,11 @@
         src: ../assets/traefik.yml
         dest: /DATA/traefik/traefik.yml
         mode: '0755'
+      notify: Restart docker containers
 
-    - name: Copy docker-compose.yml to the remote host
+    - name: Copy compose.yml to the remote host
       ansible.builtin.copy:
         src: ../assets/compose.yml
         dest: /root/compose.yml
         mode: '0755'
-
-    - name: Run a command with inline environment variables
-      ansible.builtin.shell: export CLOUDFLARE_DNS_API_TOKEN="{{ lookup('env', 'CLOUDFLARE_DNS_API_TOKEN') }}"
-
-    - name: Start Docker Compose services
-      community.docker.docker_compose_v2:
-        project_src: /root
-        state: present
+      notify: Restart docker containers
