@@ -1,0 +1,37 @@
+---
+- name: Configure login
+  hosts: hosts
+  become: true
+  handlers:
+    - name: Restart SSH
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+  tasks:
+    - name: Disable password authentication in SSH
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: Restart SSH
+
+    - name: Disable challenge-response authentication in SSH
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?ChallengeResponseAuthentication'
+        line: 'ChallengeResponseAuthentication no'
+        state: present
+      notify: Restart SSH
+
+    - name: Allow sudo without password
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        line: "{{ ansible_ssh_user }} ALL=(ALL) NOPASSWD: ALL"
+        state: present
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Remove password for the user
+      ansible.builtin.user:
+        name: "{{ ansible_ssh_user }}"
+        password: ''

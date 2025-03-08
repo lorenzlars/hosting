@@ -31,5 +31,5 @@
 
     - name: Run abb-cli command
       ansible.builtin.command:
-        cmd: abb-cli --address '{{ lookup('env', 'NAS_IP') }}' --username '{{ lookup('env', 'NAS_USER') }}' --password '{{ lookup('env', 'NAS_PASSWORD') }}' --connect --quiet
-        creates: /opt/Synology/ActiveBackupforBusiness/data/log/log.txt
+        cmd: abb-cli --address '{{ lookup('env', 'NAS_IP') }}' --username '{{ lookup('env', 'NAS_USER') }}' --password '{{ lookup('env', 'NAS_PASSWORD') }}' --connect --quiet && touch /root/backup-agent.flag
+        creates: /root/backup-agent.flag

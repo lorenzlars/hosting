@@ -2,10 +2,6 @@
 - name: Install Docker on Ubuntu using official Docker repositories
   hosts: hosts
   become: true
-  handlers:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
   tasks:
     - name: Update apt package index
       ansible.builtin.apt:
@@ -37,7 +33,6 @@
       changed_when: false
 
     - name: Set up Docker repository
-      notify: Update apt cache
       ansible.builtin.copy:
         dest: /etc/apt/sources.list.d/docker.list
         content: >-
@@ -45,6 +40,10 @@
           https://download.docker.com/linux/ubuntu
           {{ ansible_distribution_release }} stable
         mode: '0644'
+
+    - name: Update apt package index
+      ansible.builtin.apt:
+        update_cache: true
 
     - name: Install Docker packages
       ansible.builtin.apt:

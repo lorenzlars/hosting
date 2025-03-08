@@ -1,9 +1,11 @@
 ---
 - name: Import firewall playbook
   import_playbook: 01_playbook_firewall.ansible.yml
+- name: Import login playbook
+  import_playbook: 02_playbook_login.ansible.yml
 - name: Import docker playbook
-  import_playbook: 02_playbook_docker.ansible.yml
+  import_playbook: 03_playbook_docker.ansible.yml
 - name: Import backup agent playbook
-  import_playbook: 03_playbook_backup_agent.ansible.yml
+  import_playbook: 04_playbook_backup_agent.ansible.yml
 - name: Import service playbook
-  import_playbook: 04_playbook_service.ansible.yml
+  import_playbook: 05_playbook_service.ansible.yml
