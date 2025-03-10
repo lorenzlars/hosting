@@ -61,6 +61,9 @@ net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
 ```
 
+> [!WARNING]
+> Make sure this will be applied after reboot!
+
 ```shell
 sudo nano /etc/sysctl.conf
 sudo sysctl -p
@@ -140,6 +143,9 @@ net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
 ```
 
+> [!WARNING]
+> Make sure this will be applied after reboot!
+
 ```shell
 sudo nano /etc/sysctl.conf
 sudo sysctl -p
@@ -186,4 +192,13 @@ AllowedIPs = 10.0.0.0/24, 192.168.10.0/24
 Endpoint = 
 PersistentKeepalive = 25
 
+```
+
+### Workaround for sysctl
+```shell
+sudo crontab -e
+```
+
+```shell
+@reboot /sbin/sysctl --load=/etc/sysctl.conf
 ```
