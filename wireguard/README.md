@@ -1,4 +1,4 @@
-# Wireguard
+# Wireguard Relay Server
 
 Install wireguard on a client:
 ```shell
